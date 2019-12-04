@@ -1,0 +1,504 @@
+
+<html>
+<title>W3.CSS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"><meta charset="utf-8" />
+
+<link rel="stylesheet" href="w3.css">
+<link rel="stylesheet" href="w3-theme-blue.css">
+<script src="easeljs.js"></script>
+<script type="text/javascript" src="eventemitter2.min.js"></script>
+<script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+<script src="roslib.js"></script>
+
+
+<script type="text/javascript" src="ros2d.min.js"></script>
+<script type="text/javascript" src="http://static.robotwebtools.org/nav2djs/current/nav2d.min.js"></script>
+
+<script src="ros2d.js"></script>
+
+<script type="text/javascript">
+  var pi_img = new Image(); 
+  var ip = location.host;
+</script>
+
+<!.........................functions..................................>
+
+<script type="text/javascript" type="text/javascript">
+	function openWindow(evt, windowName) {
+	  var i, x, tablinks;
+	  x = document.getElementsByClassName("window");
+	  for (i = 0; i < x.length; i++) {
+		x[i].style.display = "none";
+	  }
+	  tablinks = document.getElementsByClassName("tablink");
+	  for (i = 0; i < x.length; i++) {
+		tablinks[i].className = tablinks[i].className.replace(" w3-red", ""); 
+	  }
+	  document.getElementById(windowName).style.display = "block";
+	  evt.currentTarget.className += " w3-red";
+	}
+
+  var ip = "192.168.0.198"; //location.host
+  var x = 0;
+  var z = 0;
+  var scale = 0;
+  var scale_max = 0.2;
+  var out_message = "";
+
+  // Connecting to ROS
+  // -----------------
+  var newURL = "ws://" + ip + ":9090";
+  var ros = new ROSLIB.Ros({
+    url : newURL
+  });
+
+
+	//set parameters of the camera
+	function publishCameraParameter(){
+
+			var x = document.getElementById("SelectCameraID");
+
+			var i = x.selectedIndex;
+
+			var camera_id = x.options[i].text;
+
+			var exposure_value = document.getElementById("ExposureTime").value;
+
+			var exposure_auto = document.getElementById("ExposureAuto").value;
+
+			var gain_value = document.getElementById("Gain").value;
+
+			var trigger_mode = document.getElementById("TriggerMode").value;
+
+			var trigger_source = document.getElementById("TriggerSource").value;
+
+			var trigger_selector = document.getElementById("TriggerSelector").value;
+
+			var pixel_format = document.getElementById("PixelFormat").value;
+
+			var gain_auto = document.getElementById("GainAuto").value;
+
+			var balance_white_auto = document.getElementById("BalanceWhiteAuto").value;
+
+			console.log('set the exposure of ' + camera_id + ' as: '+ exposure_value);
+			console.log('set the exposure_auto of ' + camera_id + ' as: '+ exposure_auto);
+
+//publish
+
+			var exposureTimeTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/exposureTime',
+			  messageType : 'std_msgs/String'
+			});
+
+			var exposure_time_out = new ROSLIB.Message({});
+			exposure_time_out.data =exposure_value;
+			exposureTimeTopic.publish(exposure_time_out);
+
+//publish
+			var exposureAutoTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/exposureAuto',
+			  messageType : 'std_msgs/String'
+			});
+
+			var exposure_auto_out = new ROSLIB.Message({});
+			exposure_auto_out.data =exposure_auto;
+			exposureAutoTopic.publish(exposure_auto_out);
+
+//publish
+			var triggerModeTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/triggerMode',
+			  messageType : 'std_msgs/String'
+			});
+
+			var trigger_mode_out = new ROSLIB.Message({});
+			trigger_mode_out.data =trigger_mode;
+			triggerModeTopic.publish(trigger_mode_out);
+
+//publish
+			var triggerSourceTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/triggerSource',
+			  messageType : 'std_msgs/String'
+			});
+
+			var trigger_source_out = new ROSLIB.Message({});
+			trigger_source_out.data =trigger_source;
+			triggerSourceTopic.publish(trigger_source_out);
+
+//publish
+			var triggerSelectorTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/triggerSelector',
+			  messageType : 'std_msgs/String'
+			});
+
+			var trigger_selector_out = new ROSLIB.Message({});
+			trigger_selector_out.data =trigger_selector;
+			triggerSelectorTopic.publish(trigger_selector_out);
+
+//publish
+
+			var pixelFormatTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/pixelFormat',
+			  messageType : 'std_msgs/String'
+			});
+
+			var pixel_format_out = new ROSLIB.Message({});
+			pixel_format_out.data =pixel_format;
+			pixelFormatTopic.publish(pixel_format_out);
+//publish
+			var gainAutoTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/gainAuto',
+			  messageType : 'std_msgs/String'
+			});
+
+			var gain_auto_out = new ROSLIB.Message({});
+			gain_auto_out.data =gain_auto;
+			gainAutoTopic.publish(gain_auto_out);
+
+
+//publish
+			var gainTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/gain',
+			  messageType : 'std_msgs/String'
+			});
+
+			var gain_out = new ROSLIB.Message({});
+			gain_out.data =gain_value;
+			gainTopic.publish(gain_out);
+
+//publish
+			var balanceWhiteAutoTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/balanceWhiteAuto',
+			  messageType : 'std_msgs/String'
+			});
+
+			var balance_white_auto_out = new ROSLIB.Message({});
+			balance_white_auto_out.data =balance_white_auto;
+			balanceWhiteAutoTopic.publish(balance_white_auto_out);
+
+
+	} // end set parameters of the camera
+
+
+function publishCameraTrigger(){
+
+//publish trigger topic
+
+			var triggerTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/trigger',
+			  messageType : 'std_msgs/String'
+			});
+
+			var out_string = new ROSLIB.Message({});
+			out_string.data ="trigger the camera";
+			triggerTopic.publish(out_string);
+
+
+	} // end camera trigger
+
+function publishCameraCapture(){
+
+			var captureTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/capture',
+			  messageType : 'std_msgs/String'
+			});
+
+			var capture_out = new ROSLIB.Message({});
+			capture_out.data ="start the capturing";
+			captureTopic.publish(capture_out);
+
+
+	} 
+
+function publishCameraConnect(){
+
+			var connectTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/connect',
+			  messageType : 'std_msgs/String'
+			});
+
+			var connect_out = new ROSLIB.Message({});
+			connect_out.data ="connect the camera";
+			connectTopic.publish(connect_out);
+
+
+	} 
+
+function publishCameraHTrigger(){
+
+			var HTriggerTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/HTrigger',
+			  messageType : 'std_msgs/String'
+			});
+
+			var htrigger_out = new ROSLIB.Message({});
+			htrigger_out.data ="trigger the camera by hardware";
+			HTriggerTopic.publish(htrigger_out);
+
+	} 
+
+function publishCameraDisconnect(){
+
+//publish trigger topic
+
+			var disconnectTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/disconnect',
+			  messageType : 'std_msgs/String'
+			});
+
+			var disconnect_out = new ROSLIB.Message({});
+			disconnect_out.data ="disconnect the camera";
+			disconnectTopic.publish(disconnect_out);
+
+
+	} // end camera trigger
+
+function publishPreview(){
+
+//publish trigger topic
+
+			var previewTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/startPreview',
+			  messageType : 'std_msgs/String'
+			});
+
+			var preview_out = new ROSLIB.Message({});
+			preview_out.data ="start preview";
+			previewTopic.publish(preview_out);
+
+
+	} // end camera trigger
+
+function publishStopPreview(){
+
+//publish trigger topic
+
+			var stopPreviewTopic = new ROSLIB.Topic({
+			  ros : ros,
+			  name : '/stopPreview',
+			  messageType : 'std_msgs/String'
+			});
+
+			var preview_out = new ROSLIB.Message({});
+			preview_out.data ="stop preview";
+			stopPreviewTopic.publish(preview_out);
+
+
+	} // end camera trigger
+
+ /**
+   * Setup all GUI elements when the page is loaded.
+   */
+  function init() {
+    // Connect to ROS.
+    var ros = new ROSLIB.Ros({
+      url : 'ws://192.168.0.198:9090'
+    });
+
+    // Create the main viewer.
+    var viewer = new ROS2D.Viewer({
+      divID : 'nav',
+      width : 750,
+      height : 800
+    });
+
+    // Setup the nav client.
+    var nav = NAV2D.OccupancyGridClientNav({
+      ros : ros,
+      rootObject : viewer.scene,
+      viewer : viewer,
+      serverName : '/pr2_move_base'
+    });
+  }
+
+</script>
+
+
+<body onload="init()">
+
+<div class="w3-sidebar w3-bar-block w3-light-grey w3-card" style="width:130px">
+  <h5 class="w3-bar-item">Menu</h5>
+  <button class="w3-bar-item w3-button tablink" onclick="openWindow(event, 'Camera')">Camera</button>
+  <button class="w3-bar-item w3-button tablink" onclick="openWindow(event, 'Navigation')">Navigation</button>
+  <button class="w3-bar-item w3-button tablink" onclick="openWindow(event, 'Sensor Msgs')">Sensor Msgs</button>
+</div>
+
+<div style="margin-left:130px">
+
+  <div class="w3-container w3-theme w3-card">
+	  <h1>Phenobot Web Interface</h1>
+  </div>
+  <div id="Camera" class="w3-container window" style="display:none">
+    <h2>Camera</h2>
+    <p>Allows remote access to the family robot.</p>
+
+    <select id="SelectCameraID">
+    <option>Camera 1</option>
+    <option>Camera 2</option>
+    <option>Camera 3</option>
+    <option>Camera 4</option>
+    </select>
+
+	<p></p> 
+    ExposureAuto:     
+	<select id="ExposureAuto">
+    <option>Off</option>
+    <option>Continuous</option>
+    </select>
+	<p></p>
+
+	<p></p> 
+    ExposureTime: <input type="number" id="ExposureTime" value="4000">
+	<p></p>
+
+	<p></p> 
+    TriggerMode:     
+	<select id="TriggerMode">
+    <option>On</option>
+    <option>Off</option>
+    </select>
+	<p></p>
+
+	<p></p> 
+    TriggerSource:     
+	<select id="TriggerSource">
+    <option>Line0</option>
+    <option>Line1</option>
+    <option>Line2</option>
+    <option>Software</option>
+    </select>
+	<p></p>
+
+	<p></p> 
+    TriggerSource:     
+	<select id="TriggerSelector">
+    <option>AcquisitionStart</option>
+    <option>FrameStart</option>
+    </select>
+	<p></p>
+
+	<p></p> 
+    PixelFormat:     
+	<select id="PixelFormat">
+    <option>BayerRG8</option>
+    <option>Mono8</option>
+    </select>
+	<p></p>
+
+	<p></p> 
+    BalanceWhiteAuto:     
+	<select id="BalanceWhiteAuto">
+    <option>Off</option>
+    <option>Continuous</option>
+    </select>
+	<p></p>
+
+	<p></p> 
+    GainAuto:     
+	<select id="GainAuto">
+    <option>Off</option>
+    <option>Continuous</option>
+    </select>
+	<p></p>
+
+	<p></p> 
+    Gain: <input type="number" id="Gain" value="12" >
+	<p></p>
+
+	<p></p>
+    <input type="button" id="publish"  value="publish"  onclick="publishCameraParameter();" />
+	<p></p>
+
+	<p></p>
+    <input type="button" id="connect"  value="connect"  onclick="publishCameraConnect();" />
+	<p></p>
+
+	<p></p>
+    <input type="button" id="hardware_trigger"  value="hardware_trigger"  onclick="publishCameraHTrigger();" />
+	<p></p>
+
+	<p></p>
+    <input type="button" id="trigger"  value="trigger"  onclick="publishCameraTrigger();" />
+	<p></p>
+
+	<p></p>
+    <input type="button" id="start_capturing"  value="start_capturing"  onclick="publishCameraCapture();" />
+	<p></p>
+
+	<p></p>
+    <input type="button" id="disconnect"  value="disconnect"  onclick="publishCameraDisconnect();" />
+	<p></p>
+
+	<p></p>
+    <input type="button" id="start_preview"  value="start_preview"  onclick="publishPreview();" />
+	<p></p>
+
+	<p></p>
+    <input type="button" id="stop_preview"  value="stop_preview"  onclick="publishStopPreview();" />
+	<p></p>
+
+	<p></p> 
+	<iframe src= '' id= 'target_frame1' name='target_frame1' width="512" Height="384"></iframe>
+
+	<iframe src= '' id= 'target_frame2' name='target_frame2' width="512" Height="384"></iframe>
+    <p></p>
+
+    <script>
+    	// put the video stream into the target frame
+		//need to run rosrun mjpeg_server mjpeg_server
+	document.getElementById('target_frame1').src = "http://" + "192.168.0.198" + ":8080/stream?topic=/camera1/image";
+	document.getElementById('target_frame2').src = "http://" + "192.168.0.198" + ":8080/stream?topic=/camera2/image";
+	//document.getElementById('target_frame').src = "http://localhost:8080/stream_viewer?topic=/camera/image";
+    </script>
+
+  </div> <!..camera class>
+
+  <div id="Navigation" class="w3-container window" style="display:none">
+    <h2>Navigation Map</h2>
+	<div id="nav"></div>
+  </div>
+
+  <div id="Sensor Msgs" class="w3-container window" style="display:none">
+    <h2>Sensor Msgs</h2>
+    <p>Allows remote access to the motor status.</p>
+
+    <select id="MotorID">
+    <option>Motor 1</option>
+    <option>Motor 2</option>
+    <option>Motor 3</option>
+    <option>Motor 4</option>
+    </select>
+
+	<p></p>
+    Voltage: <input type="voltage" id="voltage" value="24">
+	<p></p>
+    <select id="IMU">
+    <option>IMU 1</option>
+    <option>IMU 2</option>
+    </select> 
+	<p></p>
+	pitch: <input type="pitch" id="pitch" value="24">
+	yaw: <input type="yaw" id="yaw" value="24">
+	roll: <input type="roll" id="roll" value="24">
+
+  </div>
+
+</div>
+
+</body>
+</html>
+
